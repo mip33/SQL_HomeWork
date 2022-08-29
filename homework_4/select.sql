@@ -10,7 +10,7 @@ from album_artist aa
 join album a on aa.album_id = a.id
 join artist a2 on aa.artist_id=a2.id
 group by artist_name, year
-having year = 2019 or year = 2020
+having  year not in (2019,2020)
 
 -- 3)Считаем среднее продолжительность треков по каждому альбому
 select a.album_name ,  AVG(t.duration)
@@ -20,10 +20,15 @@ group by a.album_name;
 
 
 -- 4)Считаем исполнителей без альбомов в 2020
-select a.artist_name
-from album_artist aa, artist a, album a2
-where aa.artist_id = a.id  and not a2."year" = 2020
-group by a.artist_name ;
+select count(distinct a.artist_name)
+from album_artist aa
+join artist a on a.id = aa.artist_id
+join album a2 on aa.album_id = a2.id
+where a.artist_name not in (select distinct a.artist_name
+                            from album_artist aa
+                            join artist a on a.id = aa.artist_id
+                            join album a2 on aa.album_id = a2.id
+                            where a2."year" = 2020);
 
 -- 5)названия сборников в которых есть исполнитель "Nirvana"
 select c."name", a.artist_name
